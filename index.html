@@ -42,6 +42,14 @@
             box-sizing: border-box;
             z-index: 1000;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            gap: 10px;
+        }
+
+        .header-left-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
         }
 
         .watermark-toggle-btn {
@@ -70,6 +78,120 @@
             height: 100%;
             object-fit: contain;
             border-radius: 50%;
+        }
+
+        /* Кнопка "Розклад дзвінків" */
+        .rozklad-dzvinkiv-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s, background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        .rozklad-dzvinkiv-btn:hover {
+            opacity: 0.85;
+        }
+
+        /* Всплывающее окно прямо из кнопки */
+        .rozklad-dzvinkiv-popover {
+            display: none;
+            position: absolute;
+            top: 55px;
+            left: 56px;
+            width: 240px;
+            background: var(--card-bg);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            z-index: 1001;
+            animation: popIn 0.2s ease-out;
+        }
+
+        .rozklad-dzvinkiv-popover.active {
+            display: block;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .rozklad-dzvinkiv-popover-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+            border-bottom: 1px solid #2d3748;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .rozklad-dzvinkiv-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .call-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #18181c;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #2d3748;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .call-item .pair-num {
+            color: var(--accent);
+            font-size: 0.85rem;
+        }
+
+        .call-item .pair-time {
+            font-size: 0.9rem;
+        }
+
+        /* Подсветка текущей пары во всплывающем окне */
+        .call-item.active-call {
+            border-color: var(--highlight);
+            background: rgba(34, 197, 94, 0.15);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+        }
+
+        .call-item.active-call .pair-num {
+            color: var(--highlight);
+        }
+
+        .call-item .now-badge {
+            display: none;
+            font-size: 0.65rem;
+            background: var(--highlight);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-left: 6px;
+        }
+
+        .call-item.active-call .now-badge {
+            display: inline-block;
         }
 
         .top-header-title {
@@ -167,12 +289,31 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
             border-bottom: 1px solid #2d3748;
+            transition: all 0.3s ease;
         }
         .lesson:last-child { border-bottom: none; }
         .lesson-info strong { display: block; font-size: 1rem; }
         .lesson-info span { font-size: 0.85rem; color: var(--subtext); }
+
+        /* Подсветка текущей пары в списке уроков */
+        .active-day .lesson.active-lesson {
+            background: rgba(34, 197, 94, 0.12);
+            border-left: 4px solid var(--highlight);
+            border-bottom-color: transparent;
+            animation: pulseLesson 2s infinite alternate;
+        }
+
+        .active-day .lesson.active-lesson .lesson-info strong {
+            color: var(--highlight);
+        }
+
+        @keyframes pulseLesson {
+            from { box-shadow: 0 0 5px rgba(34, 197, 94, 0.1); }
+            to { box-shadow: 0 0 12px rgba(34, 197, 94, 0.3); }
+        }
 
         .btn-group {
             display: flex;
@@ -187,8 +328,9 @@
             font-weight: bold;
             font-size: 0.85rem;
             transition: 0.2s;
+            cursor: pointer;
         }
-        .btn-active { background: var(--accent); color: white; }
+        .btn-active { background: var(--accent); color: white; border: none; }
         .btn-active:hover { opacity: 0.85; }
         .btn-disabled { background: var(--btn-disabled); color: #64748b; pointer-events: none; }
     </style>
@@ -197,9 +339,47 @@
 
     <!-- Верхняя панель -->
     <div class="top-header-bar">
-        <button class="watermark-toggle-btn" id="watermarkBtn" title="Переключить водяной знак">
-            <img src="logo.png" alt="Icon">
-        </button>
+        <div class="header-left-group">
+            <button class="watermark-toggle-btn" id="watermarkBtn" title="Переключить водяной знак">
+                <img src="logo.png" alt="Icon">
+            </button>
+            <button class="rozklad-dzvinkiv-btn" id="toggleRozkladDzvinkivBtn">Розклад дзвінків</button>
+
+            <!-- Всплывающее окно "Розклад дзвінків" -->
+            <div class="rozklad-dzvinkiv-popover" id="rozkladDzvinkivPopover">
+                <div class="rozklad-dzvinkiv-popover-title">Розклад дзвінків</div>
+                <div class="rozklad-dzvinkiv-list">
+                    <div class="call-item" data-pair="1">
+                        <div>
+                            <span class="pair-num">1 пара</span>
+                            <span class="now-badge">Зараз</span>
+                        </div>
+                        <span class="pair-time">8:30 – 9:50</span>
+                    </div>
+                    <div class="call-item" data-pair="2">
+                        <div>
+                            <span class="pair-num">2 пара</span>
+                            <span class="now-badge">Зараз</span>
+                        </div>
+                        <span class="pair-time">10:00 – 11:20</span>
+                    </div>
+                    <div class="call-item" data-pair="3">
+                        <div>
+                            <span class="pair-num">3 пара</span>
+                            <span class="now-badge">Зараз</span>
+                        </div>
+                        <span class="pair-time">11:50 – 13:10</span>
+                    </div>
+                    <div class="call-item" data-pair="4">
+                        <div>
+                            <span class="pair-num">4 пара</span>
+                            <span class="now-badge">Зараз</span>
+                        </div>
+                        <span class="pair-time">13:20 – 14:40</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <h1 class="top-header-title">Розклад заняттів ЕК-215</h1>
 
@@ -216,21 +396,21 @@
         <div class="day-title">
             Понеділок <span class="today-badge">СЬОГОДНІ</span>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="1">
             <div class="lesson-info">
                 <strong>Зах. України</strong>
                 <span>Скрипниченко Ю.Ф.</span>
             </div>
             <a href="#" class="btn btn-disabled">Немає посилання</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="2">
             <div class="lesson-info">
                 <strong>Математика</strong>
                 <span>Кононенко С.С.</span>
             </div>
             <a href="ВСТАВЬ_ССЫЛКУ_ZOOM" class="btn btn-active" target="_blank">Zoom</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="3">
             <div class="lesson-info">
                 <strong>Технології</strong>
                 <span>Машута Л.В.</span>
@@ -244,21 +424,21 @@
         <div class="day-title">
             Вівторок <span class="today-badge">СЬОГОДНІ</span>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="1">
             <div class="lesson-info">
                 <strong>Історія Укр.</strong>
                 <span>Левченко Д.О.</span>
             </div>
             <a href="#" class="btn btn-disabled">Немає посилання</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="2">
             <div class="lesson-info">
                 <strong>Біолог. і еколог.</strong>
                 <span>Кеніх Г.М.</span>
             </div>
             <a href="#" class="btn btn-disabled">Немає посилання</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="3">
             <div class="lesson-info">
                 <strong>Гром.освіта</strong>
                 <span>Буцька Є.О.</span>
@@ -272,28 +452,28 @@
         <div class="day-title">
             Середа <span class="today-badge">СЬОГОДНІ</span>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="1">
             <div class="lesson-info">
                 <strong>Культурологія</strong>
                 <span>Марченко В.С.</span>
             </div>
             <a href="ВСТАВЬ_ССЫЛКУ_MEET" class="btn btn-active" target="_blank">Google Meet</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="2">
             <div class="lesson-info">
                 <strong>Фізика і астр.</strong>
                 <span>Усачова С.Г.</span>
             </div>
             <a href="ВСТАВЬ_ССЫЛКУ_MEET" class="btn btn-active" target="_blank">Google Meet</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="3">
             <div class="lesson-info">
                 <strong>Математика</strong>
                 <span>Кононенко С.С.</span>
             </div>
             <a href="ВСТАВЬ_ССЫЛКУ_ZOOM" class="btn btn-active" target="_blank">Zoom</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="4">
             <div class="lesson-info">
                 <strong>Укр. мова / Літ-ра</strong>
                 <span>Явтушенко Н.Г.</span>
@@ -310,28 +490,28 @@
         <div class="day-title">
             Четвер <span class="today-badge">СЬОГОДНІ</span>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="1">
             <div class="lesson-info">
                 <strong>Фіз. культура</strong>
                 <span>Ліньов А.П.</span>
             </div>
             <a href="#" class="btn btn-disabled">Немає посилання</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="2">
             <div class="lesson-info">
                 <strong>Теорія ел.кіл</strong>
                 <span>Печеневська І.О.</span>
             </div>
             <a href="#" class="btn btn-disabled">Немає посилання</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="3">
             <div class="lesson-info">
                 <strong>Іноземна мова</strong>
                 <span>Косенко / Пугачова</span>
             </div>
             <a href="#" class="btn btn-disabled">Немає посилання</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="4">
             <div class="lesson-info">
                 <strong>Укр. мова / Літ-ра</strong>
                 <span>Явтушенко Н.Г.</span>
@@ -348,35 +528,35 @@
         <div class="day-title">
             П'ятниця <span class="today-badge">СЬОГОДНІ</span>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="1">
             <div class="lesson-info">
                 <strong>Інформатика</strong>
                 <span>Березенська С.М.</span>
             </div>
             <a href="#" class="btn btn-disabled">Немає посилання</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="2">
             <div class="lesson-info">
                 <strong>Інженер. та комп.графіка</strong>
                 <span>Мягков / Черкашина</span>
             </div>
             <a href="#" class="btn btn-disabled">Немає посилання</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="3">
             <div class="lesson-info">
                 <strong>Фіз. культура</strong>
                 <span>Ліньов А.П.</span>
             </div>
             <a href="#" class="btn btn-disabled">Немає посилання</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="4">
             <div class="lesson-info">
                 <strong>Технології</strong>
                 <span>Машута Л.В.</span>
             </div>
             <a href="#" class="btn btn-disabled">Немає посилання</a>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="5">
             <div class="lesson-info">
                 <strong>Іноз.мова / Теорія ел.кіл</strong>
                 <span>Косенко, Пугачова / Печеневська І.О.</span>
@@ -386,7 +566,7 @@
                 <a href="ВСТАВЬ_ССЫЛКУ_ТЭК" class="btn btn-active" target="_blank">ТЕК</a>
             </div>
         </div>
-        <div class="lesson">
+        <div class="lesson" data-pair="6">
             <div class="lesson-info">
                 <strong>Фізика і астр.</strong>
                 <span>Усачова С.Г.</span>
@@ -396,9 +576,18 @@
     </div>
 
     <script>
+        // Расписание звонков в минутах от начала дня
+        const pairsSchedule = [
+            { pair: 1, start: 8 * 60 + 30, end: 9 * 60 + 50 },   // 08:30 - 09:50
+            { pair: 2, start: 10 * 60 + 0, end: 11 * 60 + 20 },  // 10:00 - 11:20
+            { pair: 3, start: 11 * 60 + 50, end: 13 * 60 + 10 }, // 11:50 - 13:10
+            { pair: 4, start: 13 * 60 + 20, end: 14 * 60 + 40 }  // 13:20 - 14:40
+        ];
+
         function updateClockAndHighlight() {
             const now = new Date();
 
+            // Обновление часов и даты
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
@@ -409,6 +598,7 @@
             const year = now.getFullYear();
             document.getElementById('current-date').textContent = `${day}.${month}.${year}`;
 
+            // 1. Подсветка текущего дня недели
             const currentDayOfWeek = now.getDay();
             
             document.querySelectorAll('.day-card').forEach(card => {
@@ -419,13 +609,60 @@
                     card.classList.remove('active-day');
                 }
             });
+
+            // 2. Определение текущей пары по времени
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            let activePairNum = null;
+
+            for (const p of pairsSchedule) {
+                if (currentMinutes >= p.start && currentMinutes <= p.end) {
+                    activePairNum = p.pair;
+                    break;
+                }
+            }
+
+            // Подсветка во всплывающем окне расписания звонков
+            document.querySelectorAll('.call-item').forEach(item => {
+                const pairNum = parseInt(item.getAttribute('data-pair'));
+                if (pairNum === activePairNum) {
+                    item.classList.add('active-call');
+                } else {
+                    item.classList.remove('active-call');
+                }
+            });
+
+            // Подсветка пары в текущем дне недели
+            document.querySelectorAll('.lesson').forEach(lesson => {
+                const pairNum = parseInt(lesson.getAttribute('data-pair'));
+                if (pairNum === activePairNum) {
+                    lesson.classList.add('active-lesson');
+                } else {
+                    lesson.classList.remove('active-lesson');
+                }
+            });
         }
 
+        // Логика водяного знака
         const watermarkBtn = document.getElementById('watermarkBtn');
         const watermarkImg = document.getElementById('watermarkImg');
 
         watermarkBtn.addEventListener('click', () => {
             watermarkImg.classList.toggle('visible');
+        });
+
+        // Логика всплывающего окна "Розклад дзвінків"
+        const toggleRozkladDzvinkivBtn = document.getElementById('toggleRozkladDzvinkivBtn');
+        const rozkladDzvinkivPopover = document.getElementById('rozkladDzvinkivPopover');
+
+        toggleRozkladDzvinkivBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            rozkladDzvinkivPopover.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!rozkladDzvinkivPopover.contains(e.target) && e.target !== toggleRozkladDzvinkivBtn) {
+                rozkladDzvinkivPopover.classList.remove('active');
+            }
         });
 
         updateClockAndHighlight();
