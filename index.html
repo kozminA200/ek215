@@ -98,7 +98,7 @@
             opacity: 0.85;
         }
 
-        /* Всплывающее окно прямо из кнопки */
+        /* Всплывающее окно "Розклад дзвінків" */
         .rozklad-dzvinkiv-popover {
             display: none;
             position: absolute;
@@ -168,7 +168,6 @@
             font-size: 0.9rem;
         }
 
-        /* Подсветка текущей пары во всплывающем окне */
         .call-item.active-call {
             border-color: var(--highlight);
             background: rgba(34, 197, 94, 0.15);
@@ -217,7 +216,6 @@
             flex-shrink: 0;
         }
 
-        /* Водяной знак */
         .background-watermark {
             position: fixed;
             top: 50%;
@@ -298,7 +296,6 @@
         .lesson-info strong { display: block; font-size: 1rem; }
         .lesson-info span { font-size: 0.85rem; color: var(--subtext); }
 
-        /* Подсветка текущей пары в списке уроков */
         .active-day .lesson.active-lesson {
             background: rgba(34, 197, 94, 0.12);
             border-left: 4px solid var(--highlight);
@@ -337,6 +334,7 @@
 </head>
 <body>
 
+    <!-- Верхняя панель -->
     <div class="top-header-bar">
         <div class="header-left-group">
             <button class="watermark-toggle-btn" id="watermarkBtn" title="Переключить водяной знак">
@@ -344,6 +342,7 @@
             </button>
             <button class="rozklad-dzvinkiv-btn" id="toggleRozkladDzvinkivBtn">Розклад дзвінків</button>
 
+            <!-- Всплывающее окно "Розклад дзвінків" -->
             <div class="rozklad-dzvinkiv-popover" id="rozkladDzvinkivPopover">
                 <div class="rozklad-dzvinkiv-popover-title">Розклад дзвінків</div>
                 <div class="rozklad-dzvinkiv-list">
@@ -386,8 +385,10 @@
         </div>
     </div>
 
+    <!-- Водяной знак -->
     <img id="watermarkImg" class="background-watermark" src="watermark.png" alt="Watermark">
 
+    <!-- Понедельник -->
     <div class="day-card" data-day="1">
         <div class="day-title">
             Понеділок <span class="today-badge">СЬОГОДНІ</span>
@@ -411,10 +412,11 @@
                 <strong>Технології</strong>
                 <span>Машута Л.В.</span>
             </div>
-            <a href="#" class="btn btn-disabled">Немає посилання</a>
+            <a href="https://meet.google.com/eef-pqrb-afq" class="btn btn-active" target="_blank">Google Meet</a>
         </div>
     </div>
 
+    <!-- Вторник -->
     <div class="day-card" data-day="2">
         <div class="day-title">
             Вівторок <span class="today-badge">СЬОГОДНІ</span>
@@ -442,6 +444,7 @@
         </div>
     </div>
 
+    <!-- Среда -->
     <div class="day-card" data-day="3">
         <div class="day-title">
             Середа <span class="today-badge">СЬОГОДНІ</span>
@@ -476,6 +479,7 @@
         </div>
     </div>
 
+    <!-- Четверг -->
     <div class="day-card" data-day="4">
         <div class="day-title">
             Четвер <span class="today-badge">СЬОГОДНІ</span>
@@ -513,6 +517,7 @@
         </div>
     </div>
 
+    <!-- Пятница -->
     <div class="day-card" data-day="5">
         <div class="day-title">
             П'ятниця <span class="today-badge">СЬОГОДНІ</span>
@@ -529,26 +534,25 @@
                 <strong>Інженер. та комп. графіка</strong>
                 <span>Мягков / Черкашина</span>
             </div>
-            <a href="#" class="btn btn-disabled">Немає посилання</a>
+            <a href="https://meet.google.com/eyq-cidj-xoi" class="btn btn-active" target="_blank">Google Meet</a>
         </div>
         <div class="lesson" data-pair="3">
             <div class="lesson-info">
                 <strong>Фіз. культура</strong>
                 <span>Ліньов А.П.</span>
             </div>
-            <a href="#" class="btn btn-disabled">Немає посилання</a>
+            <a href="https://meet.google.com/frv-tedh-jrn" class="btn btn-active" target="_blank">Google Meet</a>
         </div>
         <div class="lesson" data-pair="4">
             <div class="lesson-info">
                 <strong>Технології</strong>
                 <span>Машута Л.В.</span>
             </div>
-            <a href="#" class="btn btn-disabled">Немає посилання</a>
+            <a href="https://meet.google.com/eef-pqrb-afq" class="btn btn-active" target="_blank">Google Meet</a>
         </div>
     </div>
 
     <script>
-        // Расписание звонков в минутах от начала дня
         const pairsSchedule = [
             { pair: 1, start: 8 * 60 + 30, end: 9 * 60 + 50 },   // 08:30 - 09:50
             { pair: 2, start: 10 * 60 + 0, end: 11 * 60 + 20 },  // 10:00 - 11:20
@@ -559,7 +563,6 @@
         function updateClockAndHighlight() {
             const now = new Date();
 
-            // Обновление часов и даты
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
@@ -570,7 +573,6 @@
             const year = now.getFullYear();
             document.getElementById('current-date').textContent = `${day}.${month}.${year}`;
 
-            // 1. Подсветка текущего дня недели
             const currentDayOfWeek = now.getDay();
             
             document.querySelectorAll('.day-card').forEach(card => {
@@ -582,7 +584,6 @@
                 }
             });
 
-            // 2. Определение текущей пары по времени
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
             let activePairNum = null;
 
@@ -593,7 +594,6 @@
                 }
             }
 
-            // Подсветка во всплывающем окне расписания звонков
             document.querySelectorAll('.call-item').forEach(item => {
                 const pairNum = parseInt(item.getAttribute('data-pair'));
                 if (pairNum === activePairNum) {
@@ -603,7 +603,6 @@
                 }
             });
 
-            // Подсветка пары в текущем дне недели
             document.querySelectorAll('.lesson').forEach(lesson => {
                 const pairNum = parseInt(lesson.getAttribute('data-pair'));
                 if (pairNum === activePairNum) {
@@ -614,7 +613,6 @@
             });
         }
 
-        // Логика водяного знака
         const watermarkBtn = document.getElementById('watermarkBtn');
         const watermarkImg = document.getElementById('watermarkImg');
 
@@ -622,7 +620,6 @@
             watermarkImg.classList.toggle('visible');
         });
 
-        // Логика всплывающего окна "Розклад дзвінків"
         const toggleRozkladDzvinkivBtn = document.getElementById('toggleRozkladDzvinkivBtn');
         const rozkladDzvinkivPopover = document.getElementById('rozkladDzvinkivPopover');
 
